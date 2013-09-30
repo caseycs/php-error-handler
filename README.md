@@ -1,6 +1,7 @@
 # PHP error handler
 
-Common error handling with callbacks. Provides request url, environment dump for every error.
+Common error handling with callbacks. Provides custom error message with request url, 
+referer, session and other environment info for every error.
 
 Example:
 
