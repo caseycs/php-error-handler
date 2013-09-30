@@ -73,4 +73,4 @@ Also we want to write environment for uncatchable errors - which are handled by 
 
 Fatal errors, which are not handled by `set_error_handler` and are caught only by `register_shutdown_function`
 appear in error log twice - first time as native php error, and second one - as our custom message with environment
-info. Anybody known how to fix this?
+info. Anybody knowns how to fix this?
