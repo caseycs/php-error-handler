@@ -16,14 +16,14 @@ class ErrorHandler
 
     private $uniqid;
 
-    /**
-     * Зарегистрировать автоподгрузчик
-     */
     public function register()
     {
         set_error_handler(array($this, 'handleError'), E_ALL | E_STRICT);
         set_exception_handler(array($this, 'handleException'));
-        register_shutdown_function(array($this, 'handleShutdown'));
+
+        if (php_sapi_name() !== 'cli') {
+            register_shutdown_function(array($this, 'handleShutdown'));
+        }
     }
 
     public function addErrorCallback(\Closure $callback)
@@ -94,11 +94,11 @@ class ErrorHandler
 
         $Exception = new \Exception();
         $exception_trace = $Exception->getTraceAsString();
-        $exception_trace = substr($exception_trace, strpos($exception_trace, "\n") + 1);
+        $exception_trace = substr($exception_trace, strpos($exception_trace, PHP_EOL) + 1);
 
-        $message .= "\n" . $exception_trace;
+        $message .= PHP_EOL . $exception_trace;
         if ($environment = $this->environmentToString()) {
-            $message .= "\n" . $environment;
+            $message .= PHP_EOL . $environment;
         }
 
         $this->save($message);
@@ -106,16 +106,18 @@ class ErrorHandler
         foreach ($this->callbacks_error as $callback) {
             $callback($message);
         }
+
+        return true;
     }
 
     public function handleShutdown()
     {
         $error = error_get_last();
-        if ($error !== null) {
+        if ($error !== null && $error['type'] === E_ERROR) {
             $message = "SHUTDOWN {$error['message']} in {$error['file']}:{$error['line']}";
 
             if ($environment = $this->environmentToString()) {
-                $message .= "\n" . $environment;
+                $message .= PHP_EOL . $environment;
             }
 
             $this->save($message);
@@ -125,10 +127,10 @@ class ErrorHandler
     public function handleException(\Exception $Exception)
     {
         $message = 'EXCEPTION ' . get_class($Exception) . ' ' . $Exception->getMessage() . " in {$Exception->getFile()}:{$Exception->getLine()}";
-        $message .= "\n" . $Exception->getTraceAsString();
+        $message .= PHP_EOL . $Exception->getTraceAsString();
 
         if ($environment = $this->environmentToString()) {
-            $message .= "\n" . $environment;
+            $message .= PHP_EOL . $environment;
         }
 
         $this->save($message);
@@ -152,7 +154,7 @@ class ErrorHandler
         }
 
         if (!empty ($_SERVER['HTTP_REFERER'])) {
-            $log .= '\nHTTP_REFERER: ' . $_SERVER['HTTP_REFERER'];
+            $log .= PHP_EOL . 'HTTP_REFERER: ' . $_SERVER['HTTP_REFERER'];
         }
 
         //post/cookies/session/files
@@ -160,34 +162,34 @@ class ErrorHandler
         if (!empty ($_POST)) {
             $tmp = print_r($_POST, true);
             if (strlen($tmp) > $length_limit) {
-                $tmp = substr($tmp, 0, $length_limit) . "\n";
+                $tmp = substr($tmp, 0, $length_limit) . PHP_EOL;
             }
-            $log .= "\nPOST: " . $tmp;
+            $log .= PHP_EOL . "POST: " . $tmp;
         }
         if (!empty ($_FILES)) {
             $tmp = print_r($_FILES, true);
             if (strlen($tmp) > $length_limit) {
-                $tmp = substr($tmp, 0, $length_limit) . "\n";
+                $tmp = substr($tmp, 0, $length_limit) . PHP_EOL;
             }
-            $log .= "\nFILES: " . $tmp;
+            $log .= PHP_EOL . "FILES: " . $tmp;
         }
         if (!empty ($_COOKIE)) {
             $tmp = print_r($_COOKIE, true);
             if (strlen($tmp) > $length_limit) {
-                $tmp = substr($tmp, 0, $length_limit) . "\n";
+                $tmp = substr($tmp, 0, $length_limit) . PHP_EOL;
             }
-            $log .= "\nCOOKIE: " . $tmp;
+            $log .= PHP_EOL . "COOKIE: " . $tmp;
         }
         if (!empty ($_SESSION)) {
             $tmp = print_r($_SESSION, true);
             if (strlen($tmp) > $length_limit) {
-                $tmp = substr($tmp, 0, $length_limit) . "\n";
+                $tmp = substr($tmp, 0, $length_limit) . PHP_EOL;
             }
-            $log .= "\nSESSION: " . $tmp;
+            $log .= PHP_EOL . "SESSION: " . $tmp;
         }
 
         if (php_sapi_name() !== 'cli') {
-            $log .= "\nuniqid: " . $this->uniqid();
+            $log .= PHP_EOL . "uniqid: " . $this->uniqid();
         }
 
         return $log;
@@ -196,6 +198,11 @@ class ErrorHandler
     private function save($message)
     {
         error_log($message);
+
+        //to stderr for cli scripts
+        if (php_sapi_name() === 'cli') {
+            file_put_contents('php://stderr', $message . PHP_EOL, FILE_APPEND);
+        }
     }
 
     private function uniqid()
