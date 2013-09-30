@@ -52,7 +52,7 @@ This is very important!
 What's our goals?
 
 For cli we are going to write all errors to common cli error log `/var/log/php-errors-cli.php` **and** to stderr of running script - 
-for example from crontab `* * * * * php script.php >> script.log 2>&1`).
+for example from crontab `* * * * * php script.php >> script.log 2>&1`.
 
 For cli we are going to write all errors to common web error log `/var/log/php-errors-fpm.php` **including** environment - url, referer, get, post, cookies, session etc.
 Also we want to write environment for uncatchable errors - which are handled by `register_shutdown_function`.
