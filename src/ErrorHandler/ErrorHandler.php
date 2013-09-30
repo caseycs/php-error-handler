@@ -134,7 +134,7 @@ class ErrorHandler
         $this->save($message);
 
         foreach ($this->callbacks_exception as $callback) {
-            $callback($message);
+            call_user_func($callback, $Exception);
         }
     }
 
