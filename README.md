@@ -1,5 +1,4 @@
-PHP error handler
-=================
+# PHP error handler
 
 Common error handling with callbacks. Provides request url, environment dump for every error.
 
@@ -24,7 +23,7 @@ COOKIES: Array
 uniqid: 52496cfee1616
 ```
 
-Uses set_error_handler, set_exception_handler and register_shutdown_function functions.
+## Usage
 
 Basic usage:
 
@@ -42,3 +41,18 @@ if ($_SERVER['APPLICATION_ENV'] !== 'development') {
     $ErrorHandler->addExceptionCallback(function () {header ('HTTP/1.0 500 Internal Server Error', true, 500);});
 }
 ```
+
+## Going deeper
+
+First of all - make sure, that you have `error_log` value defined - both for cli and fpm (or apache) environments. Use `phpinfo()` for web and `php -i | grep error_log` for cli.
+Make sure, that specified file is writeable for user, which executes your cli scripts (for example using crontab) and apache/fpm.
+
+This is very important!
+
+What's our goals?
+
+For cli we are going to write all errors to common cli error log `/var/log/php-errors-cli.php` **and** to stderr of running script - 
+for example from crontab `* * * * * php script.php >> script.log 2>&1`.
+
+For cli we are going to write all errors to common web error log `/var/log/php-errors-fpm.php` **including** environment - url, referer, get, post, cookies, session etc.
+Also we want to write environment for uncatchable errors - which are handled by `register_shutdown_function`.
