@@ -29,7 +29,7 @@ Installation via [Composer](http://getcomposer.org)
 ```
 {
     "require": {
-        "caseycs/php-error-handler": "dev-master",
+        "caseycs/php-error-handler": "dev-master"
     },
 }
 
