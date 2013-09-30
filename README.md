@@ -24,6 +24,17 @@ COOKIES: Array
 uniqid: 52496cfee1616
 ```
 
+Installation via [Composer](http://getcomposer.org)
+
+```
+{
+    "require": {
+        "caseycs/php-error-handler": "dev-master",
+    },
+}
+
+````
+
 ## Usage
 
 Basic usage:
