@@ -90,13 +90,13 @@ class ErrorHandler
                 $errno_str = 'UNKNOWN';
         }
 
-        $message = $errno_str . ' [' . $errno . '] ' . $errstr . " in {$errfile}:{$errline}\n";
+        $message = $errno_str . ' [' . $errno . '] ' . $errstr . " in {$errfile}:{$errline}";
 
         $Exception = new \Exception();
         $exception_trace = $Exception->getTraceAsString();
         $exception_trace = substr($exception_trace, strpos($exception_trace, "\n") + 1);
 
-        $message .= $exception_trace;
+        $message .= "\n" . $exception_trace;
         if ($environment = $this->environmentToString()) {
             $message .= "\n" . $environment;
         }
@@ -112,15 +112,24 @@ class ErrorHandler
     {
         $error = error_get_last();
         if ($error !== null) {
-            $this->handleError(E_CORE_ERROR, $error['message'], $error['file'], $error['line'], null);
+            $message = "SHUTDOWN {$error['message']} in {$error['file']}:{$error['line']}";
+
+            if ($environment = $this->environmentToString()) {
+                $message .= "\n" . $environment;
+            }
+
+            $this->save($message);
         }
     }
 
     public function handleException(\Exception $Exception)
     {
-        $message = 'EXCEPTION ' . get_class($Exception) . ' ' . $Exception->getMessage() . " in {$Exception->getFile()}:{$Exception->getLine()}\n";
-        $message .= $Exception->getTraceAsString();
-        $message .= $this->environmentToString();
+        $message = 'EXCEPTION ' . get_class($Exception) . ' ' . $Exception->getMessage() . " in {$Exception->getFile()}:{$Exception->getLine()}";
+        $message .= "\n" . $Exception->getTraceAsString();
+
+        if ($environment = $this->environmentToString()) {
+            $message .= "\n" . $environment;
+        }
 
         $this->save($message);
 
@@ -139,25 +148,25 @@ class ErrorHandler
         $log = '';
 
         if (isset ($_SERVER['SERVER_NAME'], $_SERVER['SERVER_PORT'], $_SERVER['REQUEST_URI'])) {
-            $log .= "URL: " . $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT'] . $_SERVER['REQUEST_URI'] . "\n";
+            $log .= "URL: " . $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT'] . $_SERVER['REQUEST_URI'];
         }
 
         if (!empty ($_SERVER['HTTP_REFERER'])) {
-            $log .= 'HTTP_REFERER: ' . $_SERVER['HTTP_REFERER'] . "\n";
+            $log .= '\nHTTP_REFERER: ' . $_SERVER['HTTP_REFERER'];
         }
 
         //post/cookies/session/files
         if (!empty ($_POST)) {
-            $log .= '$_POST: ' . print_r($_POST, true);
+            $log .= "\nPOST: " . print_r($_POST, true);
         }
         if (!empty ($_FILES)) {
-            $log .= '$_FILES: ' . print_r($_FILES, true);
+            $log .= "\nFILES: " . print_r($_FILES, true);
         }
         if (!empty ($_COOKIE)) {
-            $log .= '$_COOKIE: ' . print_r($_COOKIE, true);
+            $log .= "\nCOOKIE: " . print_r($_COOKIE, true);
         }
         if (!empty ($_SESSION)) {
-            $log .= '$_SESSION: ' . print_r($_SESSION, true);
+            $log .= "\nSESSION: " . print_r($_SESSION, true);
         }
 
         if (php_sapi_name() !== 'cli') {
