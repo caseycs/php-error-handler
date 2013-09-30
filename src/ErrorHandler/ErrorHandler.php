@@ -147,8 +147,8 @@ class ErrorHandler
     {
         $log = '';
 
-        if (isset ($_SERVER['SERVER_NAME'], $_SERVER['SERVER_PORT'], $_SERVER['REQUEST_URI'])) {
-            $log .= "URL: " . $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT'] . $_SERVER['REQUEST_URI'];
+        if (isset ($_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'])) {
+            $log .= "URL: " . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         }
 
         if (!empty ($_SERVER['HTTP_REFERER'])) {
@@ -156,17 +156,34 @@ class ErrorHandler
         }
 
         //post/cookies/session/files
+        $length_limit = 256;
         if (!empty ($_POST)) {
-            $log .= "\nPOST: " . print_r($_POST, true);
+            $tmp = print_r($_POST, true);
+            if (strlen($tmp) > $length_limit) {
+                $tmp = substr($tmp, 0, $length_limit) . "\n";
+            }
+            $log .= "\nPOST: " . $tmp;
         }
         if (!empty ($_FILES)) {
-            $log .= "\nFILES: " . print_r($_FILES, true);
+            $tmp = print_r($_FILES, true);
+            if (strlen($tmp) > $length_limit) {
+                $tmp = substr($tmp, 0, $length_limit) . "\n";
+            }
+            $log .= "\nFILES: " . $tmp;
         }
         if (!empty ($_COOKIE)) {
-            $log .= "\nCOOKIE: " . print_r($_COOKIE, true);
+            $tmp = print_r($_COOKIE, true);
+            if (strlen($tmp) > $length_limit) {
+                $tmp = substr($tmp, 0, $length_limit) . "\n";
+            }
+            $log .= "\nCOOKIE: " . $tmp;
         }
         if (!empty ($_SESSION)) {
-            $log .= "\nSESSION: " . print_r($_SESSION, true);
+            $tmp = print_r($_SESSION, true);
+            if (strlen($tmp) > $length_limit) {
+                $tmp = substr($tmp, 0, $length_limit) . "\n";
+            }
+            $log .= "\nSESSION: " . $tmp;
         }
 
         if (php_sapi_name() !== 'cli') {
