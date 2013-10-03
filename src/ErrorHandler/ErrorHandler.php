@@ -38,9 +38,14 @@ class ErrorHandler
 
     public function handleError($errno, $errstr, $errfile, $errline, $errcontext)
     {
-        if (!error_reporting()) {
+        if (!error_reporting() || error_reporting() === 32759) {
             //однако собака (@), ничего не делаем
-            return;
+            return true;
+        }
+
+        if (error_reporting() === 32759) {
+            //hardcode for smarty templates
+            return true;
         }
 
         switch ($errno) {
