@@ -9,7 +9,8 @@ $ErrorHandler->register();
 
 function error()
 {
-    echo $unexisted_variable;
+    $a = array();
+    echo @$a[4];
 }
 
 error();

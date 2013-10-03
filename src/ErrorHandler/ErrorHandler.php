@@ -38,9 +38,9 @@ class ErrorHandler
 
     public function handleError($errno, $errstr, $errfile, $errline, $errcontext)
     {
-        if (!error_reporting()) {
-            //однако собака (@), ничего не делаем
-            return;
+        if (!(error_reporting() & $errno)) {
+            //error do not match current error reporting level
+            return true;
         }
 
         switch ($errno) {

@@ -1,5 +1,5 @@
 <?php
-error_reporting(E_ALL | E_STRICT);
+error_reporting(E_ALL & ~E_NOTICE);
 ini_set('display_errors', php_sapi_name() === 'cli');
 
 require __DIR__ . '/../src/ErrorHandler/ErrorHandler.php';
@@ -9,7 +9,8 @@ $ErrorHandler->register();
 
 function error()
 {
-    echo $unexisted_variable;
+    $a = array();
+    echo $a[4];
 }
 
 error();
