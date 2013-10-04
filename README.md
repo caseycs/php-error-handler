@@ -61,6 +61,8 @@ Make sure, that specified file is writeable for user, which executes your cli sc
 
 This is very important!
 
+Also, make sure that `display_errors` equals false - this package is only for production usage.
+
 What's our goals?
 
 For cli we are going to write all errors to common cli error log `/var/log/php-errors-cli.php` **and** to stderr of running script - 
