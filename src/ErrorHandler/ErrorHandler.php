@@ -3,15 +3,7 @@ namespace ErrorHandler;
 
 class ErrorHandler
 {
-
-    /**
-     * @var \Closure[]
-     */
     private $callbacks_error = array();
-
-    /**
-     * @var \Closure[]
-     */
     private $callbacks_exception = array();
 
     private $uniqid;
@@ -26,12 +18,12 @@ class ErrorHandler
         }
     }
 
-    public function addErrorCallback(\Closure $callback)
+    public function addErrorCallback($callback)
     {
         $this->callbacks_error[] = $callback;
     }
 
-    public function addExceptionCallback(\Closure $callback)
+    public function addExceptionCallback($callback)
     {
         $this->callbacks_exception[] = $callback;
     }
@@ -104,7 +96,7 @@ class ErrorHandler
         $this->save($message);
 
         foreach ($this->callbacks_error as $callback) {
-            $callback($message);
+            call_user_func($callback, $message);
         }
 
         return true;
