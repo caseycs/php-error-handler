@@ -139,14 +139,14 @@ class ErrorHandler
      */
     private function environmentToString()
     {
-        $log = '';
+        $log = array();
 
         if (isset ($_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'])) {
-            $log .= "URL: " . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+            $log[] = "URL: " . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         }
 
         if (!empty ($_SERVER['HTTP_REFERER'])) {
-            $log .= PHP_EOL . 'HTTP_REFERER: ' . $_SERVER['HTTP_REFERER'];
+            $log[] = 'HTTP_REFERER: ' . $_SERVER['HTTP_REFERER'];
         }
 
         //post/cookies/session/files
@@ -154,37 +154,40 @@ class ErrorHandler
         if (!empty ($_POST)) {
             $tmp = print_r($_POST, true);
             if (strlen($tmp) > $length_limit) {
-                $tmp = substr($tmp, 0, $length_limit) . PHP_EOL;
+                $tmp = substr($tmp, 0, $length_limit);
             }
-            $log .= PHP_EOL . "POST: " . $tmp;
+            $log[] = "POST: " . $tmp;
         }
         if (!empty ($_FILES)) {
             $tmp = print_r($_FILES, true);
             if (strlen($tmp) > $length_limit) {
-                $tmp = substr($tmp, 0, $length_limit) . PHP_EOL;
+                $tmp = substr($tmp, 0, $length_limit);
             }
-            $log .= PHP_EOL . "FILES: " . $tmp;
+            $log[] = "FILES: " . $tmp;
         }
         if (!empty ($_COOKIE)) {
             $tmp = print_r($_COOKIE, true);
             if (strlen($tmp) > $length_limit) {
-                $tmp = substr($tmp, 0, $length_limit) . PHP_EOL;
+                $tmp = substr($tmp, 0, $length_limit);
             }
-            $log .= PHP_EOL . "COOKIE: " . $tmp;
+            $log[] = "COOKIE: " . $tmp;
         }
         if (!empty ($_SESSION)) {
             $tmp = print_r($_SESSION, true);
             if (strlen($tmp) > $length_limit) {
-                $tmp = substr($tmp, 0, $length_limit) . PHP_EOL;
+                $tmp = substr($tmp, 0, $length_limit);
             }
-            $log .= PHP_EOL . "SESSION: " . $tmp;
+            $log[] = "SESSION: " . $tmp;
         }
 
-        if (php_sapi_name() !== 'cli') {
-            $log .= PHP_EOL . "uniqid: " . $this->uniqid();
+        if (php_sapi_name() === 'cli') {
+            global $argv;
+            $log[] = "agrv: " . join(' ', $argv);
+        } else {
+            $log[] = "uniqid: " . $this->uniqid();
         }
 
-        return $log;
+        return join(PHP_EOL, $log);
     }
 
     private function save($message)
