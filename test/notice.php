@@ -12,7 +12,8 @@ $ErrorHandler->register();
 
 function error()
 {
-    throw new \Exception('exeption_message');
+    $a = array();
+    echo $a[4];
 }
 
 error();
